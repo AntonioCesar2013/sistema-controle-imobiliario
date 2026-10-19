@@ -1,6 +1,14 @@
 """Gera uma carteira fictícia para demonstração e testes manuais."""
 
 from datetime import date
+from pathlib import Path
+import sys
+
+
+# Permite executar tanto ``python -m src.popular_banco`` quanto
+# ``python src/popular_banco.py`` a partir da raiz do projeto.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.banco import conectar, inicializar
 from src.servicos import adicionar_meses, atualizar_atrasos, criar_locacao
