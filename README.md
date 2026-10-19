@@ -16,6 +16,21 @@ python main.py
 
 O banco é criado automaticamente em `dados/imobiliaria.db`.
 
+## Popular o banco para demonstração
+
+Com o sistema fechado, execute `popular_banco.cmd`. O processo inclui dados
+totalmente fictícios e pode ser repetido sem duplicá-los. São criados:
+
+- 3 proprietários, 4 inquilinos e 7 imóveis;
+- 4 locações ativas e uma locação encerrada;
+- contratos residenciais e comerciais, antecipados e postecipados;
+- locações com e sem depósito caução;
+- mensalidades pagas, abertas, futuras e atrasadas;
+- um inquilino com mais de um contrato no histórico.
+
+O populador não apaga nem altera cadastros reais. Os registros de demonstração
+usam códigos iniciados por `DEMO-` e documentos reservados para teste.
+
 ## Regras já implementadas
 
 - um proprietário pode possuir vários imóveis;

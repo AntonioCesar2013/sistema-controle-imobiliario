@@ -1,3 +1,5 @@
+param([switch]$PopularBanco)
+
 $ErrorActionPreference = "Stop"
 Set-Location -LiteralPath $PSScriptRoot
 
@@ -24,7 +26,11 @@ try {
         Write-Host "Instalando o componente de interface WebView2..." -ForegroundColor Yellow
         & $python -m pip install -r requirements.txt
     }
-    & $python main.py
+    if ($PopularBanco) {
+        & $python -m src.popular_banco
+    } else {
+        & $python main.py
+    }
 }
 catch {
     Write-Host $_ -ForegroundColor Red

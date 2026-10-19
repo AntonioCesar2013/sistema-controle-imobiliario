@@ -3,6 +3,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import src.banco as banco
+from src.popular_banco import popular
 from src.servicos import centavos, criar_locacao
 
 
@@ -51,6 +52,28 @@ class FluxoImobiliarioTest(unittest.TestCase):
     def test_conversao_monetaria_brasileira(self):
         self.assertEqual(150050, centavos("1.500,50"))
         self.assertEqual(999, centavos("9,99"))
+
+    def test_populador_e_idempotente_e_cobre_cenarios(self):
+        primeiro = popular()
+        segundo = popular()
+        self.assertEqual(primeiro, segundo)
+        self.assertEqual(3, segundo["proprietarios"])
+        self.assertEqual(4, segundo["inquilinos"])
+        self.assertEqual(7, segundo["imoveis"])
+        self.assertEqual(5, segundo["locacoes"])
+        with banco.conectar() as conexao:
+            modalidades = {linha[0] for linha in conexao.execute(
+                "SELECT DISTINCT modalidade_pagamento FROM locacoes"
+            )}
+            finalidades = {linha[0] for linha in conexao.execute(
+                "SELECT DISTINCT finalidade FROM locacoes"
+            )}
+            status = {linha[0] for linha in conexao.execute(
+                "SELECT DISTINCT status FROM mensalidades"
+            )}
+        self.assertEqual({"ANTECIPADO", "POSTECIPADO"}, modalidades)
+        self.assertEqual({"RESIDENCIAL", "COMERCIAL"}, finalidades)
+        self.assertTrue({"PAGA", "ATRASADA"}.issubset(status))
 
 
 if __name__ == "__main__":
