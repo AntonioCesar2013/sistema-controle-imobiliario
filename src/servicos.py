@@ -7,7 +7,7 @@ from src.banco import conectar
 def centavos(valor):
     if isinstance(valor, int):
         return valor
-    texto = str(valor or "0").strip().replace("R$", "").replace(" ", "")
+    texto = "".join(str(valor or "0").replace("R$", "").split())
     if "," in texto:
         texto = texto.replace(".", "").replace(",", ".")
     return round(float(texto) * 100)

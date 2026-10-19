@@ -52,6 +52,8 @@ class FluxoImobiliarioTest(unittest.TestCase):
     def test_conversao_monetaria_brasileira(self):
         self.assertEqual(150050, centavos("1.500,50"))
         self.assertEqual(999, centavos("9,99"))
+        self.assertEqual(580000, centavos("R$ 5.800,00"))
+        self.assertEqual(580000, centavos("R$\u00a05.800,00"))
 
     def test_populador_e_idempotente_e_cobre_cenarios(self):
         primeiro = popular()
