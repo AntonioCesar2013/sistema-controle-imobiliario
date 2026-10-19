@@ -3,4 +3,5 @@
 @media(max-width:1000px){.cards{grid-template-columns:1fr 1fr}.sidebar{width:205px}main{margin-left:205px;width:calc(100% - 205px)}#conteudo,header{padding-left:24px;padding-right:24px}}
 @media(max-width:1250px){.filters{grid-template-columns:repeat(4,1fr)}.filters .btn{height:38px}}
 @media print{body>*{display:none!important}.modal-backdrop{display:block!important;position:static;background:white;padding:0}.modal{box-shadow:none;max-height:none;width:100%;padding:0}.modal-close,.actions{display:none!important}.contract{display:block}.contract h2{color:#222}}
+.receipt-number{text-align:center;color:var(--muted);font:12px "Segoe UI";letter-spacing:1px;margin-top:-8px}.receipt-value{border:2px solid var(--green);border-radius:10px;padding:12px 18px;text-align:center;font:700 24px Georgia;color:var(--green);margin:24px auto;max-width:260px}.receipt-details{background:#f7faf8;border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:20px 0;font-family:"Segoe UI";font-size:13px}.receipt-details div{display:flex;justify-content:space-between;gap:20px;padding:5px 0}.receipt-details span{color:var(--muted)}
 

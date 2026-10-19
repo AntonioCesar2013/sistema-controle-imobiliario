@@ -100,6 +100,19 @@ class Handler(SimpleHTTPRequestHandler):
                 if not contrato:
                     return self.responder({"erro": "Contrato não encontrado"}, 404)
                 return self.responder(dict(contrato))
+            if caminho.startswith("/api/recibo/"):
+                codigo = caminho.rsplit("/", 1)[1]
+                recibo = c.execute("""SELECT m.*, l.finalidade, i.codigo imovel, i.endereco,
+                    i.cidade, i.uf, q.nome inquilino, q.cpf_cnpj cpf_inquilino,
+                    p.nome proprietario, p.cpf_cnpj cpf_proprietario
+                    FROM mensalidades m JOIN locacoes l ON l.id=m.locacao_id
+                    JOIN imoveis i ON i.id=l.imovel_id
+                    JOIN inquilinos q ON q.id=l.inquilino_id
+                    JOIN proprietarios p ON p.id=i.proprietario_id
+                    WHERE m.id=? AND m.status='PAGA'""", (codigo,)).fetchone()
+                if not recibo:
+                    return self.responder({"erro": "Recibo não encontrado ou mensalidade ainda não paga."}, 404)
+                return self.responder(dict(recibo))
         return self.responder({"erro": "Rota não encontrada"}, 404)
 
     def api_post(self, caminho, dados):
