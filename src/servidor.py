@@ -82,7 +82,7 @@ class Handler(SimpleHTTPRequestHandler):
                     FROM locacoes l JOIN imoveis i ON i.id=l.imovel_id
                     JOIN inquilinos q ON q.id=l.inquilino_id
                     JOIN proprietarios p ON p.id=i.proprietario_id ORDER BY l.id DESC""",
-                "/api/mensalidades": """SELECT m.*, i.codigo imovel, q.nome inquilino
+                "/api/mensalidades": """SELECT m.*, i.codigo imovel, q.nome inquilino, l.finalidade
                     FROM mensalidades m JOIN locacoes l ON l.id=m.locacao_id
                     JOIN imoveis i ON i.id=l.imovel_id JOIN inquilinos q ON q.id=l.inquilino_id
                     ORDER BY m.vencimento DESC LIMIT 300""",
