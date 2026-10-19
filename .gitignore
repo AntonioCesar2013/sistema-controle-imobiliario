@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.venv/
+dados/*.db-wal
+dados/*.db-shm
+dados/*.db
+tests/teste-*.db*
+
