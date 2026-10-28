@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import src.banco as banco
 from src.popular_banco import popular
-from src.servicos import centavos, criar_locacao
+from src.servicos import centavos, criar_imovel, criar_locacao
 
 
 class FluxoImobiliarioTest(unittest.TestCase):
@@ -54,6 +54,25 @@ class FluxoImobiliarioTest(unittest.TestCase):
         self.assertEqual(999, centavos("9,99"))
         self.assertEqual(580000, centavos("R$ 5.800,00"))
         self.assertEqual(580000, centavos("R$\u00a05.800,00"))
+
+    def test_cadastro_de_imovel_gera_codigo_e_salva_caracteristicas(self):
+        with banco.conectar() as conexao:
+            proprietario = conexao.execute(
+                "INSERT INTO proprietarios(nome,cpf_cnpj) VALUES (?,?)", ("Ana", "333")
+            ).lastrowid
+        identificador, codigo = criar_imovel({
+            "proprietario_id": proprietario, "tipo": "CASA", "endereco": "Rua B, 20",
+            "cidade": "Cidade", "uf": "sp", "cep": "00000-000", "quartos": "3",
+            "suites": "1", "banheiros": "2", "vagas_garagem": "2",
+            "area_imovel_m2": "145,50", "area_terreno_m2": "250",
+            "cozinha_planejada": "1", "mobiliado": "0",
+        })
+        self.assertEqual("IMO-0001", codigo)
+        with banco.conectar() as conexao:
+            imovel = conexao.execute("SELECT * FROM imoveis WHERE id=?", (identificador,)).fetchone()
+        self.assertEqual(3, imovel["quartos"])
+        self.assertEqual(145.5, imovel["area_imovel_m2"])
+        self.assertEqual(1, imovel["cozinha_planejada"])
 
     def test_populador_e_idempotente_e_cobre_cenarios(self):
         primeiro = popular()

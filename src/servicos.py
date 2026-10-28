@@ -46,6 +46,50 @@ def atualizar_atrasos(conexao):
     )
 
 
+def _inteiro_ou_nulo(valor):
+    return int(valor) if str(valor or "").strip() else None
+
+
+def _decimal_ou_nulo(valor):
+    texto = str(valor or "").strip().replace(",", ".")
+    return float(texto) if texto else None
+
+
+def criar_imovel(dados):
+    obrigatorios = ("proprietario_id", "tipo", "endereco", "cidade", "uf")
+    ausentes = [campo for campo in obrigatorios if not str(dados.get(campo, "")).strip()]
+    if ausentes:
+        raise ValueError("Campos obrigatórios: " + ", ".join(ausentes))
+    inteiros = ("quartos", "suites", "banheiros", "vagas_garagem", "andar", "salas", "docas")
+    booleanos = ("cozinha_planejada", "mobiliado", "possui_elevador", "possui_recepcao",
+                "possui_copa", "possui_ar_condicionado", "possui_escritorio",
+                "energia_trifasica", "terreno_murado")
+    decimais = ("area_imovel_m2", "area_terreno_m2", "pe_direito_m",
+               "largura_terreno_m", "comprimento_terreno_m")
+    campos = ["proprietario_id", "codigo", "tipo", "endereco", "cidade", "uf", "cep",
+              *inteiros, *booleanos, *decimais, "valor_condominio_centavos", "topografia"]
+    with conectar() as conexao:
+        proximo = conexao.execute("SELECT coalesce(max(id),0)+1 FROM imoveis").fetchone()[0]
+        codigo = f"IMO-{proximo:04d}"
+        valores = {
+            "proprietario_id": int(dados["proprietario_id"]), "codigo": codigo,
+            "tipo": dados["tipo"], "endereco": dados["endereco"].strip(),
+            "cidade": dados["cidade"].strip(), "uf": dados["uf"].strip().upper(),
+            "cep": dados.get("cep", "").strip(), "topografia": dados.get("topografia") or None,
+            "valor_condominio_centavos": centavos(dados["valor_condominio"])
+                if str(dados.get("valor_condominio", "")).strip() else None,
+        }
+        valores.update({campo: _inteiro_ou_nulo(dados.get(campo)) for campo in inteiros})
+        valores.update({campo: int(str(dados.get(campo, "0")) == "1") for campo in booleanos})
+        valores.update({campo: _decimal_ou_nulo(dados.get(campo)) for campo in decimais})
+        marcadores = ",".join("?" for _ in campos)
+        cursor = conexao.execute(
+            f"INSERT INTO imoveis ({','.join(campos)}) VALUES ({marcadores})",
+            [valores[campo] for campo in campos],
+        )
+        return cursor.lastrowid, codigo
+
+
 def criar_locacao(dados):
     obrigatorios = ("imovel_id", "inquilino_id", "data_inicio", "data_fim", "valor_aluguel", "dia_vencimento")
     ausentes = [campo for campo in obrigatorios if not dados.get(campo)]

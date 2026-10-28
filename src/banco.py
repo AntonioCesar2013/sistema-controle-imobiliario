@@ -43,6 +43,14 @@ CREATE TABLE IF NOT EXISTS imoveis (
     proprietario_id INTEGER NOT NULL, codigo TEXT NOT NULL UNIQUE,
     tipo TEXT NOT NULL DEFAULT 'CASA', endereco TEXT NOT NULL,
     cidade TEXT NOT NULL, uf TEXT NOT NULL, cep TEXT, descricao TEXT,
+    quartos INTEGER, suites INTEGER, banheiros INTEGER, vagas_garagem INTEGER,
+    area_imovel_m2 REAL, area_terreno_m2 REAL, cozinha_planejada INTEGER,
+    mobiliado INTEGER, andar INTEGER, possui_elevador INTEGER,
+    valor_condominio_centavos INTEGER, salas INTEGER, possui_recepcao INTEGER,
+    possui_copa INTEGER, possui_ar_condicionado INTEGER, pe_direito_m REAL,
+    docas INTEGER, possui_escritorio INTEGER, energia_trifasica INTEGER,
+    largura_terreno_m REAL, comprimento_terreno_m REAL, topografia TEXT,
+    terreno_murado INTEGER,
     status TEXT NOT NULL DEFAULT 'DISPONIVEL'
         CHECK(status IN ('DISPONIVEL','LOCADO','MANUTENCAO','INATIVO')),
     criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -81,4 +89,21 @@ CREATE INDEX IF NOT EXISTS idx_mensalidades_vencimento ON mensalidades(status, v
 def inicializar():
     with conectar() as conexao:
         conexao.executescript(SCHEMA)
+        colunas = {linha["name"] for linha in conexao.execute("PRAGMA table_info(imoveis)")}
+        novas_colunas = {
+            "quartos": "INTEGER", "suites": "INTEGER", "banheiros": "INTEGER",
+            "vagas_garagem": "INTEGER", "area_imovel_m2": "REAL",
+            "area_terreno_m2": "REAL", "cozinha_planejada": "INTEGER",
+            "mobiliado": "INTEGER", "andar": "INTEGER", "possui_elevador": "INTEGER",
+            "valor_condominio_centavos": "INTEGER", "salas": "INTEGER",
+            "possui_recepcao": "INTEGER", "possui_copa": "INTEGER",
+            "possui_ar_condicionado": "INTEGER", "pe_direito_m": "REAL",
+            "docas": "INTEGER", "possui_escritorio": "INTEGER",
+            "energia_trifasica": "INTEGER", "largura_terreno_m": "REAL",
+            "comprimento_terreno_m": "REAL", "topografia": "TEXT",
+            "terreno_murado": "INTEGER",
+        }
+        for nome, definicao in novas_colunas.items():
+            if nome not in colunas:
+                conexao.execute(f"ALTER TABLE imoveis ADD COLUMN {nome} {definicao}")
 

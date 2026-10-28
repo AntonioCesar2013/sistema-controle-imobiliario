@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from src.banco import conectar, inicializar
-from src.servicos import centavos, criar_locacao, atualizar_atrasos
+from src.servicos import centavos, criar_imovel, criar_locacao, atualizar_atrasos
 
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -118,6 +118,9 @@ class Handler(SimpleHTTPRequestHandler):
     def api_post(self, caminho, dados):
         if caminho == "/api/locacoes":
             return self.responder({"id": criar_locacao(dados)}, 201)
+        if caminho == "/api/imoveis":
+            identificador, codigo = criar_imovel(dados)
+            return self.responder({"id": identificador, "codigo": codigo}, 201)
         if caminho.startswith("/api/mensalidades/") and caminho.endswith("/pagar"):
             codigo = caminho.split("/")[3]
             with conectar() as c:
@@ -129,12 +132,11 @@ class Handler(SimpleHTTPRequestHandler):
         tabelas = {
             "/api/proprietarios": ("proprietarios", ("nome","cpf_cnpj","telefone","email","endereco")),
             "/api/inquilinos": ("inquilinos", ("nome","cpf_cnpj","telefone","email","profissao")),
-            "/api/imoveis": ("imoveis", ("proprietario_id","codigo","tipo","endereco","cidade","uf","cep","descricao")),
         }
         if caminho in tabelas:
             tabela, campos = tabelas[caminho]
             valores = [dados.get(campo, "") for campo in campos]
-            if not dados.get("nome") and caminho != "/api/imoveis":
+            if not dados.get("nome"):
                 raise ValueError("Informe o nome.")
             with conectar() as c:
                 cursor = c.execute(f"INSERT INTO {tabela} ({','.join(campos)}) VALUES ({','.join('?' for _ in campos)})", valores)
